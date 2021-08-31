@@ -1,0 +1,4 @@
+message MoviesByYearOutput {
+    required int64 year;
+    required int64 movieCount;
+}

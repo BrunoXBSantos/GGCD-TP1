@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+BASE_DIR=$(dirname "${BASH_SOURCE[0]:-$0}")
+cd "${BASE_DIR}/.." || exit 127
+
+# shellcheck source=../scripts/helpers.sh
+. scripts/helpers.sh
+# shellcheck source=../scripts/logging.sh
+. scripts/logging.sh
+
+PROGRAM=$(basename "${BASH_SOURCE[0]:-$0}")
+VERSION=0.5.3
+
+function display_help() {
+  cat <<EOF
+  $(help_title_section Usage)
+    ${PROGRAM} [options] [<command>]
+
+  $(help_title_section Commands)
+    all  <- default value
+    dependencies
+    set_env
+
+  $(help_title_section Options)
+    -h --help         Show this screen.
+    -v --version      Show version.
+EOF
+}
+
+function download_dependencies() {
+  log_info "setup" "Downloading dependencies..."
+  bin/mvnw package
+  log_success "Dependencies downloaded"
+}
+
+function set_env() {
+  log_info "setup" "Setting up the env..."
+  if [ ! -f .env ]; then
+    cp .env.sample .env
+    log_success "env file created, you might want to open .env and set the correct values..."
+  else
+    log_warn ".env file already exists, skipping..."
+  fi
+}
+
+case ${1:-all} in
+  -h | --help)
+    display_help
+    ;;
+  -v | --version)
+    display_version "${VERSION}" "${PROGRAM}"
+    ;;
+  dependencies)
+    download_dependencies
+    ;;
+  environment)
+    set_env
+    ;;
+  all)
+    download_dependencies
+    set_env
+    ;;
+  *)
+    display_help >&2
+    exit 1
+    ;;
+esac

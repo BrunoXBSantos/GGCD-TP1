@@ -1,0 +1,6 @@
+message MostVotedByYearOutput {
+    required int64 year;
+    required binary movie_id (STRING);
+    optional binary primaryTitle (STRING);
+    required int64 numVotes;
+}

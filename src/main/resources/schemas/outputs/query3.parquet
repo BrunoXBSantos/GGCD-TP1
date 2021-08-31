@@ -1,0 +1,10 @@
+message Top10RatingByYearOutput {
+    required int64 year;
+    required group ranking (LIST) {
+        repeated group movie {
+            required binary movie_id (STRING);
+            optional binary primaryTitle (STRING);
+            required double rating;
+        }
+    }
+}

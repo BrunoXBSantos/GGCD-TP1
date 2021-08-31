@@ -1,0 +1,15 @@
+message Title {
+    required binary tconst (STRING);
+    optional binary titleType (STRING);
+    optional binary primaryTitle (STRING);
+    optional binary originalTitle (STRING);
+    optional boolean isAdult;
+    optional binary startYear (STRING);
+    optional binary endYear (STRING);
+    optional int64 runtimeMinutes;
+    optional group genres (LIST) {
+        repeated binary genre (STRING);
+    }
+    optional double averageRating;
+    optional int64 numVotes;
+}

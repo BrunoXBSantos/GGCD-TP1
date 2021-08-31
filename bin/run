@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+BASE_DIR=$(dirname "${BASH_SOURCE[0]:-$0}")
+cd "${BASE_DIR}/.." || exit 127
+
+# shellcheck source=../scripts/helpers.sh
+. scripts/helpers.sh
+
+PROGRAM=$(basename "${BASH_SOURCE[0]:-$0}")
+VERSION=0.5.3
+
+function display_help() {
+  cat <<EOF
+  $(help_title_section Usage)
+    ${PROGRAM} [environments] <args>
+    ${PROGRAM} [options]
+
+  $(help_title_section Environments)
+    --local           To run in the local environment.
+    --gcloud          To run in the google cloud environment.
+
+  $(help_title_section Options)
+    -h --help         Show this screen.
+    -v --version      Show version.
+
+  $(help_title_section Notes)
+  If you need help to understand the valid arguments you can run the following:
+
+    ${PROGRAM} help
+EOF
+}
+
+case ${1:-error} in
+  -h | --help)
+    display_help
+    ;;
+  -v | --version)
+    display_version "${VERSION}" "${PROGRAM}"
+    ;;
+  help)
+    bin/mvnw compile exec:java -Dexec.args="--help"
+    ;;
+  --gcloud)
+    shift 1
+    bin/build
+    # shellcheck disable=SC2086
+    # shellcheck disable=SC2048
+    gcloud dataproc jobs submit hadoop --jars=target/ggcd.tp1-0.1.0.jar --class=ggcd.tp1.App --cluster=ggcd-hadoop --region=europe-west1 -- $*
+    ;;
+  --local)
+    shift 1
+    bin/mvnw compile exec:java -Dexec.args="$*"
+    ;;
+  *)
+    display_help >&2
+    exit 1
+    ;;
+esac

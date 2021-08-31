@@ -1,0 +1,4 @@
+message MoviesByYearInput {
+    optional binary titleType (STRING);
+    optional binary startYear (STRING);
+}

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+BASE_DIR=$(dirname "${BASH_SOURCE[0]:-$0}")
+cd "${BASE_DIR}/.." || exit 127
+
+# shellcheck source=../scripts/helpers.sh
+. scripts/helpers.sh
+# shellcheck source=../scripts/logging.sh
+. scripts/logging.sh
+
+PROGRAM=$(basename "${BASH_SOURCE[0]:-$0}")
+VERSION=0.5.3
+
+function display_help() {
+  cat <<EOF
+  $(help_title_section Usage)
+    ${PROGRAM} [options] [<command>]
+
+  $(help_title_section Commands)
+    java   <- default value
+    shell
+
+  $(help_title_section Options)
+    -h --help         Show this screen.
+    -v --version      Show version.
+EOF
+}
+
+function lint() {
+  case $1 in
+    shell)
+      log_info "${FUNCNAME[0]} ${1} scripts"
+      shellcheck scripts/*.sh
+      log_success "${FUNCNAME[0]} ${1} scripts"
+      ;;
+    java)
+      log_info "${FUNCNAME[0]} ${1} files"
+      bin/mvnw checkstyle:check
+      log_success "${FUNCNAME[0]} ${1} files"
+      ;;
+  esac
+}
+
+case ${1:-java} in
+  -h | --help)
+    display_help
+    ;;
+  -v | --version)
+    display_version "${VERSION}" "${PROGRAM}"
+    ;;
+  shell | bash | sh | scripts)
+    lint shell
+    ;;
+  java)
+    lint java
+    ;;
+   *)
+    display_help >&2
+    exit 1
+    ;;
+esac

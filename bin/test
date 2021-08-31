@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+BASE_DIR=$(dirname "${BASH_SOURCE[0]:-$0}")
+cd "${BASE_DIR}/.." || exit 127
+
+# shellcheck source=../scripts/helpers.sh
+. scripts/helpers.sh
+# shellcheck source=../scripts/logging.sh
+. scripts/logging.sh
+
+PROGRAM=$(basename "${BASH_SOURCE[0]:-$0}")
+VERSION=0.5.3
+
+function display_help() {
+  cat <<EOF
+  $(help_title_section Usage)
+    ${PROGRAM} [options] [<command>]
+
+  $(help_title_section Commands)
+    java   <- default value
+
+  $(help_title_section Options)
+    -h --help         Show this screen.
+    -v --version      Show version.
+EOF
+}
+
+function running() {
+  case $1 in
+    java)
+      log_info "${FUNCNAME[0]} ${1} tests"
+      bin/mvnw test jacoco:report
+      log_success "${FUNCNAME[0]} ${1} tests"
+      ;;
+  esac
+}
+
+case ${1:-java} in
+  -h | --help)
+    display_help
+    ;;
+  -v | --version)
+    display_version "${VERSION}" "${PROGRAM}"
+    ;;
+  java)
+    running java
+    ;;
+   *)
+    display_help >&2
+    exit 1
+    ;;
+esac

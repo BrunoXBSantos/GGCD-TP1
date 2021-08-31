@@ -1,0 +1,7 @@
+message MostVotedByYearInput {
+    optional binary tconst (STRING);
+    optional binary titleType (STRING);
+    optional binary primaryTitle (STRING);
+    optional binary startYear (STRING);
+    optional int64 numVotes;
+}
